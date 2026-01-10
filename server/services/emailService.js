@@ -15,7 +15,8 @@ const createTransporter = () => {
       // Enforce TLS 1.2+ for secure connections
       minVersion: 'TLSv1.2',
       // Use Node.js default secure ciphers (do not specify SSLv3 or other weak ciphers)
-      rejectUnauthorized: process.env.NODE_ENV === 'production'
+      // Use case-insensitive comparison to handle NODE_ENV variations (e.g., 'production', 'PRODUCTION')
+      rejectUnauthorized: process.env.NODE_ENV?.toLowerCase() === 'production'
     }
   });
 };
