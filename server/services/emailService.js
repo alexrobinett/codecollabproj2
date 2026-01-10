@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+const logger = require('../utils/logger');
 
 // Create transporter (you'll need to configure this with your email provider)
 const createTransporter = () => {
@@ -11,7 +12,9 @@ const createTransporter = () => {
       pass: process.env.EMAIL_PASSWORD
     },
     tls: {
-      rejectUnauthorized: false
+      // Use secure defaults - rejectUnauthorized should be true in production
+      ciphers: 'SSLv3',
+      minVersion: 'TLSv1.2'
     }
   });
 };
@@ -20,18 +23,19 @@ const createTransporter = () => {
 // Send verification email
 const sendVerificationEmail = async (email, token, username) => {
   try {
-    console.log(`📧 Starting email send process for: ${email}`);
-    console.log(`🔧 Email config check:`);
-    console.log(`   - EMAIL_USER: ${process.env.EMAIL_USER ? '✅ Set' : '❌ Missing'}`);
-    console.log(`   - EMAIL_PASSWORD: ${process.env.EMAIL_PASSWORD ? '✅ Set' : '❌ Missing'}`);
-    console.log(`   - FRONTEND_URL: ${process.env.FRONTEND_URL}`);
-    
+    logger.info('Starting verification email send process', {
+      recipientEmail: email,
+      hasEmailUser: !!process.env.EMAIL_USER,
+      hasEmailPassword: !!process.env.EMAIL_PASSWORD,
+      hasFrontendUrl: !!process.env.FRONTEND_URL
+    });
+
     const transporter = createTransporter();
-    
+
     // Test the connection first
-    console.log(`🔍 Testing SMTP connection...`);
+    logger.debug('Testing SMTP connection');
     await transporter.verify();
-    console.log(`✅ SMTP connection verified`);
+    logger.info('SMTP connection verified successfully');
     
     const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
     
@@ -66,26 +70,28 @@ const sendVerificationEmail = async (email, token, username) => {
         </div>
       `
     };
-    
-    console.log(`📧 Sending verification email to: ${email}`);
-    console.log(`🔗 Verification URL: ${verificationUrl}`);
-    
+
+    logger.info('Sending verification email', {
+      recipientEmail: email,
+      hasVerificationUrl: !!verificationUrl
+    });
+
     const result = await transporter.sendMail(mailOptions);
-    console.log('✅ Email sent successfully');
-    console.log('📧 Email result:', {
+    logger.info('Verification email sent successfully', {
       messageId: result.messageId,
       accepted: result.accepted,
       rejected: result.rejected,
       pending: result.pending
     });
-    
+
     return true;
   } catch (error) {
-    console.error('❌ Error sending verification email:');
-    console.error('   Error type:', error.name || 'Unknown');
-    console.error('   Error message:', error.message);
-    console.error('   Error code:', error.code);
-    console.error('   Full error:', error);
+    logger.error('Failed to send verification email', {
+      recipientEmail: email,
+      errorName: error.name || 'Unknown',
+      errorMessage: error.message,
+      errorCode: error.code
+    });
     return false;
   }
 };
@@ -128,11 +134,26 @@ const sendPasswordResetEmail = async (email, token, username) => {
         </div>
       `
     };
-    
+
+
+    logger.info('Sending password reset email', {
+      recipientEmail: email,
+      hasResetUrl: !!resetUrl
+    });
+
     await transporter.sendMail(mailOptions);
+    logger.info('Password reset email sent successfully', {
+      recipientEmail: email
+    });
+
     return true;
   } catch (error) {
-    console.error('Error sending password reset email:', error);
+    logger.error('Failed to send password reset email', {
+      recipientEmail: email,
+      errorName: error.name || 'Unknown',
+      errorMessage: error.message,
+      errorCode: error.code
+    });
     return false;
   }
 };
