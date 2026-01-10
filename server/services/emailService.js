@@ -12,9 +12,10 @@ const createTransporter = () => {
       pass: process.env.EMAIL_PASSWORD
     },
     tls: {
-      // Use secure defaults - rejectUnauthorized should be true in production
-      ciphers: 'SSLv3',
-      minVersion: 'TLSv1.2'
+      // Enforce TLS 1.2+ for secure connections
+      minVersion: 'TLSv1.2',
+      // Use Node.js default secure ciphers (do not specify SSLv3 or other weak ciphers)
+      rejectUnauthorized: process.env.NODE_ENV === 'production'
     }
   });
 };
