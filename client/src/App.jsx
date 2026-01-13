@@ -188,12 +188,12 @@ function App() {
             </Routes>
           </Router>
         </ThemeProvider>
-        {/* React Query DevTools - temporarily disabled to avoid chunk loading issues */}
-        {/* {process.env.NODE_ENV === 'development' && (
+        {/* React Query DevTools */}
+        {process.env.NODE_ENV === 'development' && (
           <React.Suspense fallback={null}>
             <ReactQueryDevtools initialIsOpen={false} />
           </React.Suspense>
-        )} */}
+        )}
       </QueryClientProvider>
     </ErrorBoundary>
   );

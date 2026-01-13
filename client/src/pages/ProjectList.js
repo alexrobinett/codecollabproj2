@@ -19,6 +19,7 @@ import {
 import { Search, Add, Code, People, CalendarToday } from '@mui/icons-material';
 import { useProjects } from '../hooks/projects';
 import { useAuth } from '../hooks/auth';
+import EmptyState from '../components/common/EmptyState';
 
 const ProjectList = () => {
   const { user } = useAuth();
@@ -178,17 +179,23 @@ const ProjectList = () => {
         </Grid>
 
         {filteredProjects.length === 0 && (
-          <Box sx={{ textAlign: 'center', mt: 4 }}>
-            <Typography variant="h6" color="text.secondary">
-              {projects.length === 0 ? 'No projects yet' : 'No projects found'}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {projects.length === 0 
-                ? 'Be the first to create a project!' 
-                : 'Try adjusting your search terms or create a new project.'
-              }
-            </Typography>
-          </Box>
+          projects.length === 0 ? (
+            <EmptyState
+              type="projects"
+              title="No projects yet"
+              description="Be the first to create a project and start collaborating with the community!"
+              actionLabel="Create Project"
+              actionHref="/projects/create"
+            />
+          ) : (
+            <EmptyState
+              type="search"
+              title="No projects found"
+              description="Try adjusting your search terms or create a new project."
+              actionLabel="Clear Search"
+              onAction={() => setSearchTerm('')}
+            />
+          )
         )}
       </Box>
     </Container>
