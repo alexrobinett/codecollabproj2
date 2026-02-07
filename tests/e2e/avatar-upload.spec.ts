@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { loginAsRole } from './fixtures/auth.fixture';
-import path from 'path';
-import fs from 'fs';
+import * as path from 'path';
+import * as fs from 'fs';
 
 /**
  * E2E tests for avatar upload functionality
