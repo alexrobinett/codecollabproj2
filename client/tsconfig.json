@@ -27,7 +27,7 @@
       "@/types/*": ["./types/*"],
       "@/pages/*": ["./pages/*"]
     },
-    "types": [],
+    "types": ["node"],
     "typeRoots": ["./node_modules/@types", "./src/types"],
     "noImplicitAny": false,
     "strictNullChecks": false,
