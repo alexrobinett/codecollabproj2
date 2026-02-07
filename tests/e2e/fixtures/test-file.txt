@@ -1,0 +1,2 @@
+This is a test text file used for testing file upload validation.
+It should be rejected when trying to upload as an avatar image.
