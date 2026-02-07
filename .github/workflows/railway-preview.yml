@@ -1,0 +1,136 @@
+name: Railway Preview Deploy
+
+on:
+  pull_request:
+    types: [opened, synchronize, closed]
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  deploy-preview:
+    if: github.event.action != 'closed'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      statuses: write
+    outputs:
+      preview_url: ${{ steps.deploy.outputs.preview_url }}
+      service_id: ${{ steps.deploy.outputs.service_id }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Login to Railway
+        run: railway login --token ${{ secrets.RAILWAY_TOKEN }}
+
+      - name: Create Preview Environment
+        id: deploy
+        run: |
+          # Generate unique environment name
+          ENV_NAME="pr-${{ github.event.number }}"
+          echo "environment=$ENV_NAME" >> $GITHUB_OUTPUT
+          
+          # Link to service (assumes project is already linked)
+          railway link --service codecollabproj2
+          
+          # Deploy to specific environment
+          railway up --environment $ENV_NAME --detached
+          
+          # Get preview URL (may need adjustment based on Railway project setup)
+          PREVIEW_URL="https://$ENV_NAME-codecollabproj2.up.railway.app"
+          echo "preview_url=$PREVIEW_URL" >> $GITHUB_OUTPUT
+          
+          echo "Deployed preview to: $PREVIEW_URL"
+
+      - name: Comment PR with Preview URL
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const previewUrl = '${{ steps.deploy.outputs.preview_url }}';
+            const envName = '${{ steps.deploy.outputs.environment }}';
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🚀 **Preview Deployed!**
+              
+              Environment: \`${envName}\`
+              URL: ${previewUrl}
+              
+              This environment will be automatically destroyed when the PR is closed.`
+            });
+
+  test-preview:
+    needs: deploy-preview
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install Dependencies (Server)
+        run: |
+          cd server
+          npm ci
+
+      - name: Install Dependencies (Client)
+        run: |
+          cd client
+          npm ci
+
+      - name: Install Playwright
+        run: npx playwright install --with-deps
+
+      - name: Run E2E Tests Against Preview
+        run: |
+          cd client
+          npm run test:e2e
+        env:
+          BASE_URL: ${{ needs.deploy-preview.outputs.preview_url }}
+          CI: true
+
+      - name: Upload Playwright Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: client/playwright-report/
+          retention-days: 7
+
+  cleanup:
+    if: github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Login to Railway
+        run: railway login --token ${{ secrets.RAILWAY_TOKEN }}
+
+      - name: Destroy Preview Environment
+        run: |
+          ENV_NAME="pr-${{ github.event.number }}"
+          
+          # Link to service
+          railway link --service codecollabproj2
+          
+          # Destroy the environment
+          railway down --environment $ENV_NAME
+          
+          echo "Destroyed preview environment: $ENV_NAME"
