@@ -39,8 +39,10 @@ test.describe('Email Service', () => {
     // If redirected to login, should see success message about account creation
     const currentUrl = page.url();
     if (currentUrl.includes('/login')) {
-      // Look for success message
-      await expect(page.locator('.MuiAlert-standardSuccess, text=/account created/i')).toBeVisible();
+      // Look for success message (check both class and text)
+      const successVisible = await page.locator('.MuiAlert-standardSuccess').isVisible().catch(() => false);
+      const accountCreatedVisible = await page.getByText(/account created/i).isVisible().catch(() => false);
+      expect(successVisible || accountCreatedVisible).toBe(true);
     }
   });
 
@@ -62,7 +64,10 @@ test.describe('Email Service', () => {
     await page.click('button[type="submit"]');
 
     // Should show success message (email sent - or skipped in E2E mode)
-    await expect(page.locator('.MuiAlert-standardSuccess, text=/email sent/i, text=/check your email/i')).toBeVisible({ timeout: 10000 });
+    // Check for success alert or success text
+    const successVisible = await page.locator('.MuiAlert-standardSuccess').isVisible().catch(() => false);
+    const emailSentVisible = await page.getByText(/email sent|check your email/i).isVisible().catch(() => false);
+    expect(successVisible || emailSentVisible).toBe(true);
   });
 
   test('should handle invalid email in forgot password', async ({ page }) => {
@@ -77,7 +82,9 @@ test.describe('Email Service', () => {
     await page.click('button[type="submit"]');
 
     // Should show validation error
-    await expect(page.locator('text=/invalid email/i, text=/valid email/i, .MuiAlert-standardError')).toBeVisible();
+    const errorVisible = await page.locator('.MuiAlert-standardError').isVisible().catch(() => false);
+    const invalidEmailVisible = await page.getByText(/invalid email|valid email/i).isVisible().catch(() => false);
+    expect(errorVisible || invalidEmailVisible).toBe(true);
   });
 
   test('should handle non-existent email in forgot password', async ({ page }) => {
@@ -119,7 +126,9 @@ test.describe('Email Service', () => {
     await page.click('button[type="submit"]');
 
     // Should show email validation error
-    await expect(page.locator('text=/invalid email/i, text=/valid email/i, .MuiAlert-standardError')).toBeVisible();
+    const errorVisible = await page.locator('.MuiAlert-standardError').isVisible().catch(() => false);
+    const invalidEmailVisible = await page.getByText(/invalid email|valid email/i).isVisible().catch(() => false);
+    expect(errorVisible || invalidEmailVisible).toBe(true);
   });
 
   test('should prevent duplicate email registration', async ({ page }) => {
