@@ -1,10 +1,12 @@
 import { test, expect } from '@playwright/test';
 import { loginAsRole } from './fixtures/auth.fixture';
-import path from 'path';
+import * as path from 'path';
+import * as fs from 'fs';
 
 /**
  * E2E tests for Avatar Upload functionality
  * Tests uploading, previewing, validating, and removing avatars
+ * Includes file creation for realistic testing
  */
 test.describe('Avatar Upload', () => {
   test.beforeEach(async ({ page }) => {
@@ -32,7 +34,30 @@ test.describe('Avatar Upload', () => {
     }
   });
 
-  test('should upload a valid image as avatar', async ({ page }) => {
+  test('should upload a valid image as avatar (PNG)', async ({ page }) => {
+    // Create a test PNG image (1x1 red pixel)
+    const testImagePath = path.join(__dirname, 'fixtures', 'test-avatar.png');
+    const testImageDir = path.dirname(testImagePath);
+
+    // Ensure fixtures directory exists
+    if (!fs.existsSync(testImageDir)) {
+      fs.mkdirSync(testImageDir, { recursive: true });
+    }
+
+    // Create a minimal valid PNG (1x1 red pixel)
+    const pngBuffer = Buffer.from([
+      0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, // PNG signature
+      0x00, 0x00, 0x00, 0x0d, 0x49, 0x48, 0x44, 0x52, // IHDR chunk
+      0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, // 1x1 dimensions
+      0x08, 0x02, 0x00, 0x00, 0x00, 0x90, 0x77, 0x53, // bit depth, color type
+      0xde, 0x00, 0x00, 0x00, 0x0c, 0x49, 0x44, 0x41, // IDAT chunk
+      0x54, 0x08, 0x99, 0x63, 0xf8, 0xcf, 0xc0, 0x00, // red pixel data
+      0x00, 0x03, 0x01, 0x01, 0x00, 0x18, 0xdd, 0x8d, // end of IDAT
+      0xb4, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4e, // IEND chunk
+      0x44, 0xae, 0x42, 0x60, 0x82,
+    ]);
+    fs.writeFileSync(testImagePath, pngBuffer);
+
     // Look for file input or upload button
     const fileInput = page.locator('input[type="file"][accept*="image"]');
     const uploadButton = page.getByRole('button', { name: /upload avatar|change avatar|upload picture/i });
@@ -41,10 +66,6 @@ test.describe('Avatar Upload', () => {
     const hasUploadButton = await uploadButton.isVisible({ timeout: 5000 }).catch(() => false);
 
     if (hasFileInput || hasUploadButton) {
-      // Create a test image file path
-      // Using a fixture image (we'll create this)
-      const testImagePath = path.join(__dirname, 'fixtures', 'test-avatar.png');
-
       if (hasFileInput) {
         // Direct file input
         await fileInput.setInputFiles(testImagePath);
@@ -60,7 +81,7 @@ test.describe('Avatar Upload', () => {
       await page.waitForTimeout(2000);
 
       // Look for success message or avatar preview
-      const successIndicator = page.locator('text=Avatar uploaded successfully, text=Profile updated');
+      const successIndicator = page.locator('text=/upload.*success|profile.*updated/i');
       const avatarImage = page.locator('img[alt*="avatar" i], img[alt*="profile" i]');
 
       const hasSuccess = await successIndicator.first().isVisible({ timeout: 5000 }).catch(() => false);
@@ -70,6 +91,64 @@ test.describe('Avatar Upload', () => {
     } else {
       console.log('Avatar upload feature not found on profile page');
     }
+
+    // Cleanup
+    if (fs.existsSync(testImagePath)) {
+      fs.unlinkSync(testImagePath);
+    }
+  });
+
+  test('should upload a valid avatar image (JPEG)', async ({ page }) => {
+    // Create a minimal valid JPEG
+    const testImagePath = path.join(__dirname, 'fixtures', 'test-avatar.jpg');
+    const testImageDir = path.dirname(testImagePath);
+
+    if (!fs.existsSync(testImageDir)) {
+      fs.mkdirSync(testImageDir, { recursive: true });
+    }
+
+    // Minimal JPEG (1x1 black pixel)
+    const jpegBuffer = Buffer.from([
+      0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, // JPEG SOI + JFIF
+      0x49, 0x46, 0x00, 0x01, 0x01, 0x01, 0x00, 0x48,
+      0x00, 0x48, 0x00, 0x00, 0xff, 0xdb, 0x00, 0x43,
+      0x00, 0x03, 0x02, 0x02, 0x02, 0x02, 0x02, 0x03,
+      0x02, 0x02, 0x02, 0x03, 0x03, 0x03, 0x03, 0x04,
+      0x06, 0x04, 0x04, 0x04, 0x04, 0x04, 0x08, 0x06,
+      0x06, 0x05, 0x06, 0x09, 0x08, 0x0a, 0x0a, 0x09,
+      0x08, 0x09, 0x09, 0x0a, 0x0c, 0x0f, 0x0c, 0x0a,
+      0x0b, 0x0e, 0x0b, 0x09, 0x09, 0x0d, 0x11, 0x0d,
+      0x0e, 0x0f, 0x10, 0x10, 0x11, 0x10, 0x0a, 0x0c,
+      0x12, 0x13, 0x12, 0x10, 0x13, 0x0f, 0x10, 0x10,
+      0x10, 0xff, 0xc9, 0x00, 0x0b, 0x08, 0x00, 0x01,
+      0x00, 0x01, 0x01, 0x01, 0x11, 0x00, 0xff, 0xcc,
+      0x00, 0x06, 0x00, 0x10, 0x10, 0x05, 0xff, 0xda,
+      0x00, 0x08, 0x01, 0x01, 0x00, 0x00, 0x3f, 0x00,
+      0xd2, 0xcf, 0x20, 0xff, 0xd9, // EOI
+    ]);
+    fs.writeFileSync(testImagePath, jpegBuffer);
+
+    const fileInput = page.locator('input[type="file"][accept*="image"]');
+
+    if ((await fileInput.count()) > 0) {
+      await fileInput.setInputFiles(testImagePath);
+      await page.waitForTimeout(2000);
+
+      const hasSuccessMessage = await page
+        .locator('text=/upload.*success/i')
+        .isVisible()
+        .catch(() => false);
+      const hasAvatar = await page
+        .locator('img[alt*="avatar" i], img[alt*="profile" i]')
+        .isVisible()
+        .catch(() => false);
+
+      expect(hasSuccessMessage || hasAvatar).toBeTruthy();
+    }
+
+    if (fs.existsSync(testImagePath)) {
+      fs.unlinkSync(testImagePath);
+    }
   });
 
   test('should preview avatar before uploading', async ({ page }) => {
@@ -78,6 +157,24 @@ test.describe('Avatar Upload', () => {
 
     if (hasFileInput) {
       const testImagePath = path.join(__dirname, 'fixtures', 'test-avatar.png');
+      const testImageDir = path.dirname(testImagePath);
+
+      if (!fs.existsSync(testImageDir)) {
+        fs.mkdirSync(testImageDir, { recursive: true });
+      }
+
+      const pngBuffer = Buffer.from([
+        0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
+        0x00, 0x00, 0x00, 0x0d, 0x49, 0x48, 0x44, 0x52,
+        0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
+        0x08, 0x02, 0x00, 0x00, 0x00, 0x90, 0x77, 0x53,
+        0xde, 0x00, 0x00, 0x00, 0x0c, 0x49, 0x44, 0x41,
+        0x54, 0x08, 0x99, 0x63, 0xf8, 0xcf, 0xc0, 0x00,
+        0x00, 0x03, 0x01, 0x01, 0x00, 0x18, 0xdd, 0x8d,
+        0xb4, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4e,
+        0x44, 0xae, 0x42, 0x60, 0x82,
+      ]);
+      fs.writeFileSync(testImagePath, pngBuffer);
 
       // Select file
       await fileInput.setInputFiles(testImagePath);
@@ -98,103 +195,134 @@ test.describe('Avatar Upload', () => {
       } else {
         console.log('Avatar preview not implemented');
       }
+
+      if (fs.existsSync(testImagePath)) {
+        fs.unlinkSync(testImagePath);
+      }
     } else {
       console.log('File input not found');
     }
   });
 
-  test('should reject files that are too large', async ({ page }) => {
+  test('should reject invalid file types (PDF)', async ({ page }) => {
+    // Create a minimal PDF file
+    const testFilePath = path.join(__dirname, 'fixtures', 'test-document.pdf');
+    const testFileDir = path.dirname(testFilePath);
+
+    if (!fs.existsSync(testFileDir)) {
+      fs.mkdirSync(testFileDir, { recursive: true });
+    }
+
+    const pdfBuffer = Buffer.from(
+      '%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj 2 0 obj<</Type/Pages/Count 0>>endobj\nxref\n0 3\n0000000000 65535 f\n0000000009 00000 n\n0000000058 00000 n\ntrailer<</Size 3/Root 1 0 R>>\nstartxref\n110\n%%EOF'
+    );
+    fs.writeFileSync(testFilePath, pdfBuffer);
+
     const fileInput = page.locator('input[type="file"][accept*="image"]');
-    const hasFileInput = await fileInput.isVisible({ timeout: 5000 }).catch(() => false);
 
-    if (hasFileInput) {
-      // Create a large file path (if we have one in fixtures)
-      const largeImagePath = path.join(__dirname, 'fixtures', 'large-avatar.png');
+    if ((await fileInput.count()) > 0) {
+      // HTML5 file input validation should prevent this, but test the behavior
+      await fileInput.setInputFiles(testFilePath);
+      await page.waitForTimeout(2000);
 
-      // Try to upload
-      await fileInput.setInputFiles(largeImagePath).catch(() => {});
+      // Should either show error message or not upload
+      const hasErrorMessage = await page
+        .locator('text=/invalid.*file|unsupported.*type|only.*image/i')
+        .isVisible()
+        .catch(() => false);
+      const hasSuccessMessage = await page
+        .locator('text=/upload.*success/i')
+        .isVisible()
+        .catch(() => false);
 
-      // Wait for error message
-      await page.waitForTimeout(1000);
+      expect(hasErrorMessage || !hasSuccessMessage).toBeTruthy();
+    }
 
-      // Look for file size error
-      const errorMessage = page.locator('text=too large, text=file size, text=maximum size');
-      const hasError = await errorMessage.first().isVisible({ timeout: 5000 }).catch(() => false);
-
-      // If no error appeared, validation might not be client-side
-      // Just verify the upload doesn't succeed
-      if (!hasError) {
-        console.log('File size validation may not be implemented or may be server-side only');
-      }
-    } else {
-      console.log('File input not found');
+    if (fs.existsSync(testFilePath)) {
+      fs.unlinkSync(testFilePath);
     }
   });
 
-  test('should reject invalid file formats (non-images)', async ({ page }) => {
+  test('should reject oversized files (>5MB)', async ({ page }) => {
+    // Create a large PNG file (>5MB)
+    const testFilePath = path.join(__dirname, 'fixtures', 'test-large.png');
+    const testFileDir = path.dirname(testFilePath);
+
+    if (!fs.existsSync(testFileDir)) {
+      fs.mkdirSync(testFileDir, { recursive: true });
+    }
+
+    // Create 6MB of data
+    const pngHeader = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+    const largeData = Buffer.alloc(6 * 1024 * 1024); // 6MB
+    const largeFile = Buffer.concat([pngHeader, largeData]);
+    fs.writeFileSync(testFilePath, largeFile);
+
     const fileInput = page.locator('input[type="file"][accept*="image"]');
-    const hasFileInput = await fileInput.isVisible({ timeout: 5000 }).catch(() => false);
 
-    if (hasFileInput) {
-      // Try to upload a non-image file
-      const textFilePath = path.join(__dirname, 'fixtures', 'test-file.txt');
+    if ((await fileInput.count()) > 0) {
+      await fileInput.setInputFiles(testFilePath);
+      await page.waitForTimeout(3000); // Give time for validation
 
-      // HTML5 file input with accept="image/*" may prevent selection entirely
-      // But we can still try
-      await fileInput.setInputFiles(textFilePath).catch(() => {});
+      // Should show error message about file size
+      const hasErrorMessage = await page
+        .locator('text=/too large|file.*size|exceed|5.*mb|maximum/i')
+        .isVisible()
+        .catch(() => false);
+      const hasSuccessMessage = await page
+        .locator('text=/upload.*success/i')
+        .isVisible()
+        .catch(() => false);
 
-      await page.waitForTimeout(1000);
+      expect(hasErrorMessage || !hasSuccessMessage).toBeTruthy();
+    }
 
-      // Look for format error
-      const errorMessage = page.locator('text=invalid format, text=only images, text=image files only');
-      const hasError = await errorMessage.first().isVisible({ timeout: 5000 }).catch(() => false);
-
-      if (!hasError) {
-        console.log('File format validation may be handled by HTML5 accept attribute');
-      }
-    } else {
-      console.log('File input not found');
+    if (fs.existsSync(testFilePath)) {
+      fs.unlinkSync(testFilePath);
     }
   });
 
-  test('should remove/delete avatar', async ({ page }) => {
-    // First, verify there's an avatar or upload one
-    const avatarImage = page.locator('img[alt*="avatar" i], img[alt*="profile" i]');
-    const hasAvatar = await avatarImage.first().isVisible({ timeout: 5000 }).catch(() => false);
+  test('should delete avatar successfully', async ({ page }) => {
+    // Look for delete/remove avatar button
+    const deleteButton = page.locator(
+      'button:has-text("Remove"), button:has-text("Delete Avatar"), button[aria-label*="delete" i][aria-label*="avatar" i]'
+    );
 
-    if (hasAvatar) {
-      // Look for remove/delete button
-      const removeButton = page.getByRole('button', { name: /remove avatar|delete avatar|remove picture/i });
-      const hasRemoveButton = await removeButton.isVisible({ timeout: 5000 }).catch(() => false);
+    if (await deleteButton.isVisible().catch(() => false)) {
+      await deleteButton.click();
 
-      if (hasRemoveButton) {
-        await removeButton.click();
+      // Wait for deletion to process
+      await page.waitForTimeout(2000);
 
-        // Confirm deletion if dialog appears
-        const confirmDialog = page.getByRole('dialog');
-        if (await confirmDialog.isVisible({ timeout: 2000 }).catch(() => false)) {
-          const confirmButton = page.getByRole('button', { name: /confirm|yes|delete/i });
-          await confirmButton.click();
-        }
+      // Should show success message or avatar should be removed
+      const hasSuccessMessage = await page
+        .locator('text=/removed|deleted.*success/i')
+        .isVisible()
+        .catch(() => false);
+      const hasDefaultAvatar = await page
+        .locator('img[alt*="avatar" i][src*="default"], svg[data-testid*="avatar" i]')
+        .isVisible()
+        .catch(() => false);
 
-        // Wait for removal
-        await page.waitForTimeout(2000);
-
-        // Verify avatar is removed (replaced with default or initials)
-        const successMessage = page.locator('text=Avatar removed, text=removed successfully');
-        const hasSuccess = await successMessage.first().isVisible({ timeout: 5000 }).catch(() => false);
-
-        // Or verify avatar src changed to default
-        const currentAvatar = page.locator('img[alt*="avatar" i], img[alt*="profile" i]').first();
-        const avatarSrc = await currentAvatar.getAttribute('src');
-
-        expect(hasSuccess || avatarSrc?.includes('default') || avatarSrc?.includes('initials')).toBeTruthy();
-      } else {
-        console.log('Remove avatar button not found');
-      }
+      expect(hasSuccessMessage || hasDefaultAvatar).toBeTruthy();
     } else {
-      console.log('No avatar to remove');
+      console.log('⚠️  No delete avatar button found (user may not have an avatar)');
     }
+  });
+
+  test('should display current avatar on profile page', async ({ page }) => {
+    // Should have either an avatar image or a default avatar icon
+    const hasAvatarImage = await page
+      .locator('img[alt*="avatar" i], img[alt*="profile" i]')
+      .isVisible()
+      .catch(() => false);
+    const hasAvatarIcon = await page
+      .locator('[data-testid*="avatar" i], svg[class*="avatar" i]')
+      .isVisible()
+      .catch(() => false);
+
+    // Profile page should display some form of avatar
+    expect(hasAvatarImage || hasAvatarIcon).toBeTruthy();
   });
 
   test('should display avatar in navbar after upload', async ({ page }) => {
@@ -204,6 +332,25 @@ test.describe('Avatar Upload', () => {
 
     if (hasFileInput) {
       const testImagePath = path.join(__dirname, 'fixtures', 'test-avatar.png');
+      const testImageDir = path.dirname(testImagePath);
+
+      if (!fs.existsSync(testImageDir)) {
+        fs.mkdirSync(testImageDir, { recursive: true });
+      }
+
+      const pngBuffer = Buffer.from([
+        0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
+        0x00, 0x00, 0x00, 0x0d, 0x49, 0x48, 0x44, 0x52,
+        0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
+        0x08, 0x02, 0x00, 0x00, 0x00, 0x90, 0x77, 0x53,
+        0xde, 0x00, 0x00, 0x00, 0x0c, 0x49, 0x44, 0x41,
+        0x54, 0x08, 0x99, 0x63, 0xf8, 0xcf, 0xc0, 0x00,
+        0x00, 0x03, 0x01, 0x01, 0x00, 0x18, 0xdd, 0x8d,
+        0xb4, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4e,
+        0x44, 0xae, 0x42, 0x60, 0x82,
+      ]);
+      fs.writeFileSync(testImagePath, pngBuffer);
+
       await fileInput.setInputFiles(testImagePath);
       await page.waitForTimeout(2000);
 
@@ -216,47 +363,9 @@ test.describe('Avatar Upload', () => {
       const hasNavbarAvatar = await navbarAvatar.isVisible({ timeout: 5000 }).catch(() => false);
 
       expect(hasNavbarAvatar).toBeTruthy();
-    } else {
-      console.log('Avatar upload not implemented');
-    }
-  });
 
-  test('should display avatar in comments after upload', async ({ page }) => {
-    // Upload avatar first
-    const fileInput = page.locator('input[type="file"][accept*="image"]');
-    const hasFileInput = await fileInput.isVisible({ timeout: 5000 }).catch(() => false);
-
-    if (hasFileInput) {
-      const testImagePath = path.join(__dirname, 'fixtures', 'test-avatar.png');
-      await fileInput.setInputFiles(testImagePath);
-      await page.waitForTimeout(2000);
-
-      // Navigate to a project and add a comment
-      await page.goto('http://localhost:3000/projects');
-      await page.waitForLoadState('networkidle');
-
-      const viewDetailsButton = page.locator('text=View Details').first();
-      if (await viewDetailsButton.isVisible({ timeout: 5000 }).catch(() => false)) {
-        await viewDetailsButton.click();
-        await page.waitForURL('**/projects/**');
-
-        // Add a comment
-        const commentTextarea = page.locator('textarea[placeholder="Write a comment..."]');
-        if (await commentTextarea.isVisible({ timeout: 5000 }).catch(() => false)) {
-          await commentTextarea.fill(`Test comment with avatar - ${Date.now()}`);
-          await page.getByRole('button', { name: /post comment/i }).click();
-          await page.waitForTimeout(2000);
-
-          // Check if comment shows avatar
-          const commentAvatar = page.locator('.comment img[alt*="avatar" i], [class*="comment"] img[alt*="avatar" i]');
-          const hasCommentAvatar = await commentAvatar.first().isVisible({ timeout: 5000 }).catch(() => false);
-
-          if (hasCommentAvatar) {
-            expect(hasCommentAvatar).toBeTruthy();
-          } else {
-            console.log('Avatar in comments may use initials or default');
-          }
-        }
+      if (fs.existsSync(testImagePath)) {
+        fs.unlinkSync(testImagePath);
       }
     } else {
       console.log('Avatar upload not implemented');
