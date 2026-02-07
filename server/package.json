@@ -38,7 +38,7 @@
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^8.2.0",
     "multer": "^2.0.2",
-    "nodemailer": "^7.0.12",
+    "nodemailer": "^8.0.1",
     "xss": "^1.0.14"
   },
   "devDependencies": {
@@ -51,7 +51,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/multer": "^2.0.0",
     "@types/node": "^25.0.9",
-    "@types/nodemailer": "^7.0.5",
+    "@types/nodemailer": "^7.0.9",
     "@types/supertest": "^6.0.3",
     "@typescript-eslint/eslint-plugin": "^8.53.1",
     "@typescript-eslint/parser": "^8.53.1",
