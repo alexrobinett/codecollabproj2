@@ -1,0 +1,48 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - link "Casual Coding Meetup Group Logo CodeCollabProj Casual Coding Meetup Group" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img "Casual Coding Meetup Group Logo" [ref=e7]
+        - generic [ref=e8]:
+          - heading "CodeCollabProj" [level=6] [ref=e9]
+          - generic [ref=e10]: Casual Coding Meetup Group
+      - generic [ref=e11]:
+        - link "Projects" [ref=e12] [cursor=pointer]:
+          - /url: /projects
+          - text: Projects
+        - link "Login" [ref=e13] [cursor=pointer]:
+          - /url: /login
+          - text: Login
+        - link "Register" [ref=e14] [cursor=pointer]:
+          - /url: /register
+          - text: Register
+  - main [ref=e15]:
+    - generic [ref=e18]:
+      - alert [ref=e19]:
+        - img [ref=e21]
+        - generic [ref=e23]:
+          - generic [ref=e24]: Password Reset Link Generated
+          - text: "Development mode: A password reset link has been generated. You can copy the link below or click it to reset your password."
+          - generic [ref=e25]:
+            - paragraph
+            - link "Click to Reset Password" [ref=e26] [cursor=pointer]:
+              - /url: /reset-password?token=undefined
+              - text: Click to Reset Password
+      - generic [ref=e27]:
+        - link "Back to Login" [ref=e28] [cursor=pointer]:
+          - /url: /login
+          - text: Back to Login
+        - button "Send Another Email" [ref=e29] [cursor=pointer]: Send Another Email
+  - contentinfo [ref=e30]:
+    - generic [ref=e32]:
+      - generic [ref=e33]:
+        - img "Casual Coding Meetup Group Logo" [ref=e34]
+        - generic [ref=e35]:
+          - heading "CodeCollabProj" [level=6] [ref=e36]
+          - generic [ref=e37]: Casual Coding Meetup Group
+      - paragraph [ref=e38]: © 2026 CodeCollabProj. All rights reserved.
+```

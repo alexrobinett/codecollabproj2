@@ -1,0 +1,72 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - link "Casual Coding Meetup Group Logo CodeCollabProj Casual Coding Meetup Group" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img "Casual Coding Meetup Group Logo" [ref=e7]
+        - generic [ref=e8]:
+          - heading "CodeCollabProj" [level=6] [ref=e9]
+          - generic [ref=e10]: Casual Coding Meetup Group
+      - generic [ref=e11]:
+        - link "Projects" [ref=e12] [cursor=pointer]:
+          - /url: /projects
+          - text: Projects
+        - link "Login" [ref=e13] [cursor=pointer]:
+          - /url: /login
+          - text: Login
+        - link "Register" [ref=e14] [cursor=pointer]:
+          - /url: /register
+          - text: Register
+  - main [ref=e15]:
+    - generic [ref=e18]:
+      - heading "Register" [level=1] [ref=e19]
+      - generic [ref=e20]:
+        - generic [ref=e21]:
+          - generic [ref=e22]:
+            - text: Username
+            - generic [ref=e23]: "*"
+          - generic [ref=e24]:
+            - textbox "Username" [ref=e25]: testuser1770487630041
+            - group:
+              - generic: Username *
+        - generic [ref=e26]:
+          - generic [ref=e27]:
+            - text: Email
+            - generic [ref=e28]: "*"
+          - generic [ref=e29]:
+            - textbox "Email" [active] [ref=e30]: notanemail
+            - group:
+              - generic: Email *
+        - generic [ref=e31]:
+          - generic [ref=e32]:
+            - text: Password
+            - generic [ref=e33]: "*"
+          - generic [ref=e34]:
+            - textbox "Password" [ref=e35]: ValidPass123!
+            - group:
+              - generic: Password *
+        - generic [ref=e36]:
+          - generic [ref=e37]:
+            - text: Confirm Password
+            - generic [ref=e38]: "*"
+          - generic [ref=e39]:
+            - textbox "Confirm Password" [ref=e40]: ValidPass123!
+            - group:
+              - generic: Confirm Password *
+        - button "Register" [ref=e41] [cursor=pointer]: Register
+      - paragraph [ref=e43]:
+        - text: Already have an account?
+        - link "Login here" [ref=e44] [cursor=pointer]:
+          - /url: /login
+  - contentinfo [ref=e45]:
+    - generic [ref=e47]:
+      - generic [ref=e48]:
+        - img "Casual Coding Meetup Group Logo" [ref=e49]
+        - generic [ref=e50]:
+          - heading "CodeCollabProj" [level=6] [ref=e51]
+          - generic [ref=e52]: Casual Coding Meetup Group
+      - paragraph [ref=e53]: © 2026 CodeCollabProj. All rights reserved.
+```

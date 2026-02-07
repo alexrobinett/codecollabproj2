@@ -1,0 +1,44 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - link "Casual Coding Meetup Group Logo CodeCollabProj Casual Coding Meetup Group" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img "Casual Coding Meetup Group Logo" [ref=e7]
+        - generic [ref=e8]:
+          - heading "CodeCollabProj" [level=6] [ref=e9]
+          - generic [ref=e10]: Casual Coding Meetup Group
+      - generic [ref=e11]:
+        - link "Projects" [ref=e12] [cursor=pointer]:
+          - /url: /projects
+          - text: Projects
+        - link "Login" [ref=e13] [cursor=pointer]:
+          - /url: /login
+          - text: Login
+        - link "Register" [ref=e14] [cursor=pointer]:
+          - /url: /register
+          - text: Register
+  - main [ref=e15]:
+    - generic [ref=e18]:
+      - alert [ref=e19]:
+        - img [ref=e21]
+        - generic [ref=e23]:
+          - generic [ref=e24]: Registration Successful!
+          - text: We've sent a verification email to
+          - strong [ref=e25]: testuser1770487573511@example.com
+          - text: . Please check your inbox and click the verification link to activate your account.
+      - paragraph [ref=e26]: If you don't see the email, please check your spam folder. You can also request a new verification email from the login page.
+      - link "Go to Login" [ref=e28] [cursor=pointer]:
+        - /url: /login
+        - text: Go to Login
+  - contentinfo [ref=e29]:
+    - generic [ref=e31]:
+      - generic [ref=e32]:
+        - img "Casual Coding Meetup Group Logo" [ref=e33]
+        - generic [ref=e34]:
+          - heading "CodeCollabProj" [level=6] [ref=e35]
+          - generic [ref=e36]: Casual Coding Meetup Group
+      - paragraph [ref=e37]: © 2026 CodeCollabProj. All rights reserved.
+```

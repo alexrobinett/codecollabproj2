@@ -1,0 +1,41 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - link "Casual Coding Meetup Group Logo CodeCollabProj Casual Coding Meetup Group" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img "Casual Coding Meetup Group Logo" [ref=e7]
+        - generic [ref=e8]:
+          - heading "CodeCollabProj" [level=6] [ref=e9]
+          - generic [ref=e10]: Casual Coding Meetup Group
+      - generic [ref=e11]:
+        - link "Projects" [ref=e12] [cursor=pointer]:
+          - /url: /projects
+          - text: Projects
+        - link "Login" [ref=e13] [cursor=pointer]:
+          - /url: /login
+          - text: Login
+        - link "Register" [ref=e14] [cursor=pointer]:
+          - /url: /register
+          - text: Register
+  - main [ref=e15]:
+    - generic [ref=e18]:
+      - alert [ref=e19]:
+        - img [ref=e21]
+        - generic [ref=e23]:
+          - generic [ref=e24]: Invalid or Expired Reset Link
+          - text: This password reset link is invalid or has expired. Please request a new password reset.
+      - link "Request New Reset Link" [ref=e26] [cursor=pointer]:
+        - /url: /forgot-password
+        - text: Request New Reset Link
+  - contentinfo [ref=e27]:
+    - generic [ref=e29]:
+      - generic [ref=e30]:
+        - img "Casual Coding Meetup Group Logo" [ref=e31]
+        - generic [ref=e32]:
+          - heading "CodeCollabProj" [level=6] [ref=e33]
+          - generic [ref=e34]: Casual Coding Meetup Group
+      - paragraph [ref=e35]: © 2026 CodeCollabProj. All rights reserved.
+```
