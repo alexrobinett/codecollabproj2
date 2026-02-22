@@ -39,6 +39,7 @@ import {
   useProject,
   useRequestCollaboration,
   useHandleCollaborationRequest,
+  useDeleteProject,
 } from '../../hooks/projects';
 import { useComments, useCreateComment } from '../../hooks/comments';
 import type {
@@ -111,11 +112,13 @@ const ProjectDetail: React.FC = () => {
   const createCommentMutation = useCreateComment();
   const requestCollaborationMutation = useRequestCollaboration();
   const handleCollaborationMutation = useHandleCollaborationRequest();
+  const deleteProjectMutation = useDeleteProject();
 
   // Local state
   const [comment, setComment] = useState<string>('');
   const [showDeleteDialog, setShowDeleteDialog] = useState<boolean>(false);
   const [commentSuccess, setCommentSuccess] = useState<boolean>(false);
+  const [deleteError, setDeleteError] = useState<string>('');
 
   // Helper to get user ID from various user object shapes
   const getUserId = (
@@ -164,14 +167,27 @@ const ProjectDetail: React.FC = () => {
   };
 
   const handleDelete = (): void => {
+    setDeleteError('');
     setShowDeleteDialog(true);
   };
 
   const confirmDelete = (): void => {
-    // TODO: Implement project deletion
-    // dispatch(deleteProject(projectId));
-    setShowDeleteDialog(false);
-    navigate('/projects');
+    if (!projectId) {
+      setDeleteError('Unable to delete project: missing project ID.');
+      return;
+    }
+
+    deleteProjectMutation.mutate(projectId, {
+      onSuccess: () => {
+        setShowDeleteDialog(false);
+        navigate('/projects');
+      },
+      onError: (error: Error & { response?: { data?: { message?: string } } }) => {
+        setDeleteError(
+          error?.response?.data?.message || error?.message || 'Failed to delete project.'
+        );
+      },
+    });
   };
 
   const handleCollaborate = async (): Promise<void> => {
@@ -408,10 +424,10 @@ const ProjectDetail: React.FC = () => {
               </Box>
               {isOwner ? (
                 <Box>
-                  <IconButton onClick={handleEdit} color="primary">
+                  <IconButton onClick={handleEdit} color="primary" aria-label="edit project">
                     <EditIcon />
                   </IconButton>
-                  <IconButton onClick={handleDelete} color="error">
+                  <IconButton onClick={handleDelete} color="error" aria-label="delete project">
                     <DeleteIcon />
                   </IconButton>
                 </Box>
@@ -793,17 +809,26 @@ const ProjectDetail: React.FC = () => {
       </Grid>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={showDeleteDialog} onClose={() => setShowDeleteDialog(false)}>
+      <Dialog
+        open={showDeleteDialog}
+        onClose={() => !deleteProjectMutation.isPending && setShowDeleteDialog(false)}
+      >
         <DialogTitle>Delete Project</DialogTitle>
         <DialogContent>
-          <Typography>
+          <Typography sx={{ mb: deleteError ? 2 : 0 }}>
             Are you sure you want to delete this project? This action cannot be undone.
           </Typography>
+          {deleteError && <Alert severity="error">{deleteError}</Alert>}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setShowDeleteDialog(false)}>Cancel</Button>
-          <Button onClick={confirmDelete} color="error">
-            Delete
+          <Button
+            onClick={() => setShowDeleteDialog(false)}
+            disabled={deleteProjectMutation.isPending}
+          >
+            Cancel
+          </Button>
+          <Button onClick={confirmDelete} color="error" disabled={deleteProjectMutation.isPending}>
+            {deleteProjectMutation.isPending ? 'Deleting...' : 'Delete'}
           </Button>
         </DialogActions>
       </Dialog>
