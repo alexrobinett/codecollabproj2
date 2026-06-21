@@ -1,4 +1,3 @@
-const { validationResult } = require('express-validator');
 const Project = require('../models/Project');
 const logger = require('../utils/logger');
 
@@ -10,15 +9,6 @@ const createProject = async (req, res) => {
       hasFile: !!req.file,
       bodyKeys: Object.keys(req.body),
     });
-
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      logger.warn('Project creation validation failed', {
-        userId: req.user?._id,
-        errors: errors.array(),
-      });
-      return res.status(400).json({ errors: errors.array() });
-    }
 
     const {
       title,
@@ -141,16 +131,6 @@ const updateProject = async (req, res) => {
       userId: req.user._id,
       updateFields: Object.keys(req.body),
     });
-
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      logger.warn('Project update validation failed', {
-        projectId: req.params.id,
-        userId: req.user._id,
-        errors: errors.array(),
-      });
-      return res.status(400).json({ errors: errors.array() });
-    }
 
     const {
       title,

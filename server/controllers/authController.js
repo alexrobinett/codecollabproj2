@@ -1,4 +1,3 @@
-const { validationResult } = require('express-validator');
 const User = require('../models/User');
 const sessionService = require('../services/sessionService');
 const logger = require('../utils/logger');
@@ -11,11 +10,6 @@ const SENSITIVE_FIELDS =
 // Register new user
 const register = async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
     const { email, password, username } = req.body;
 
     // Check if user already exists
@@ -131,11 +125,6 @@ const register = async (req, res) => {
 // Login user
 const login = async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
     const { email, password } = req.body;
 
     console.log('🔍 Login request body:', {
@@ -324,11 +313,6 @@ const resendVerificationEmail = async (req, res) => {
 // Request password reset
 const requestPasswordReset = async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
     const { email } = req.body;
 
     const user = await User.findOne({ email });
@@ -403,11 +387,6 @@ const verifyPasswordResetToken = async (req, res) => {
 // Reset password
 const resetPassword = async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
     const { token, password } = req.body;
 
     const user = await User.findOne({
@@ -564,11 +543,6 @@ const getActiveSessions = async (req, res) => {
 // Change password (revokes all sessions)
 const changePassword = async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
     const { currentPassword, newPassword } = req.body;
     const userId = req.user._id;
 

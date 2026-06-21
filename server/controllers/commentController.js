@@ -1,15 +1,9 @@
-const { validationResult } = require('express-validator');
 const Comment = require('../models/Comment');
 const Project = require('../models/Project');
 
 // Create comment
 const createComment = async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
     const { content } = req.body;
     const projectId = req.params.projectId;
     const userId = req.user._id;
@@ -23,7 +17,7 @@ const createComment = async (req, res) => {
     const comment = new Comment({
       content,
       projectId,
-      userId
+      userId,
     });
 
     await comment.save();
@@ -59,11 +53,6 @@ const getProjectComments = async (req, res) => {
 // Update comment
 const updateComment = async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
     const { content } = req.body;
     const commentId = req.params.commentId;
     const userId = req.user._id;
@@ -115,5 +104,5 @@ module.exports = {
   createComment,
   getProjectComments,
   updateComment,
-  deleteComment
-}; 
+  deleteComment,
+};
