@@ -2,6 +2,7 @@ const express = require('express');
 const { body } = require('express-validator');
 const auth = require('../middleware/auth');
 const { requireAdmin, addDebugHeaders } = require('../middleware/rbac');
+const { validate } = require('../middleware/validators');
 const {
   getDashboardStats,
   getAllUsers,
@@ -9,7 +10,7 @@ const {
   updateUserRole,
   toggleUserSuspension,
   deleteUser,
-  getSystemLogs
+  getSystemLogs,
 } = require('../controllers/adminController');
 
 const router = express.Router();
@@ -50,41 +51,43 @@ router.get('/users/:userId', getUserDetails);
  * @desc Update user role and permissions
  * @access Admin only
  */
-router.put('/users/:userId/role', [
-  body('role')
-    .optional()
-    .isIn(['user', 'moderator', 'admin'])
-    .withMessage('Invalid role'),
-  body('permissions')
-    .optional()
-    .isArray()
-    .withMessage('Permissions must be an array'),
-  body('customPermissions')
-    .optional()
-    .isArray()
-    .withMessage('Custom permissions must be an array')
-], updateUserRole);
+router.put(
+  '/users/:userId/role',
+  [
+    body('role').optional().isIn(['user', 'moderator', 'admin']).withMessage('Invalid role'),
+    body('permissions').optional().isArray().withMessage('Permissions must be an array'),
+    body('customPermissions')
+      .optional()
+      .isArray()
+      .withMessage('Custom permissions must be an array'),
+  ],
+  validate,
+  updateUserRole
+);
 
 /**
  * @route PUT /api/admin/users/:userId/suspension
  * @desc Suspend or unsuspend a user
  * @access Admin only
  */
-router.put('/users/:userId/suspension', [
-  body('suspend')
-    .isBoolean()
-    .withMessage('Suspend field must be boolean'),
-  body('reason')
-    .if(body('suspend').equals(true))
-    .notEmpty()
-    .withMessage('Reason is required when suspending a user')
-    .isLength({ max: 500 })
-    .withMessage('Reason must not exceed 500 characters'),
-  body('duration')
-    .optional()
-    .isInt({ min: 1 })
-    .withMessage('Duration must be a positive number (in milliseconds)')
-], toggleUserSuspension);
+router.put(
+  '/users/:userId/suspension',
+  [
+    body('suspend').isBoolean().withMessage('Suspend field must be boolean'),
+    body('reason')
+      .if(body('suspend').equals(true))
+      .notEmpty()
+      .withMessage('Reason is required when suspending a user')
+      .isLength({ max: 500 })
+      .withMessage('Reason must not exceed 500 characters'),
+    body('duration')
+      .optional()
+      .isInt({ min: 1 })
+      .withMessage('Duration must be a positive number (in milliseconds)'),
+  ],
+  validate,
+  toggleUserSuspension
+);
 
 /**
  * @route DELETE /api/admin/users/:userId

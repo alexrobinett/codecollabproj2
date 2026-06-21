@@ -12,7 +12,7 @@ const {
   handleCollaborationRequest,
   searchProjects,
 } = require('../controllers/projectController');
-const { projectValidator } = require('../middleware/validators');
+const { validate, projectValidator } = require('../middleware/validators');
 const auth = require('../middleware/auth');
 const { FILE_UPLOAD } = require('../config/constants');
 
@@ -48,7 +48,7 @@ const upload = multer({
 // @route   POST /api/projects
 // @desc    Create a new project
 // @access  Private
-router.post('/', auth, upload.single('image'), projectValidator, createProject);
+router.post('/', auth, upload.single('image'), projectValidator, validate, createProject);
 
 // @route   GET /api/projects
 // @desc    Get all projects
@@ -68,7 +68,7 @@ router.get('/:id', getProjectById);
 // @route   PUT /api/projects/:id
 // @desc    Update project
 // @access  Private (owner only)
-router.put('/:id', auth, projectValidator, updateProject);
+router.put('/:id', auth, projectValidator, validate, updateProject);
 
 // @route   DELETE /api/projects/:id
 // @desc    Delete project

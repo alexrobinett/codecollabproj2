@@ -1,7 +1,25 @@
-import { body, ValidationChain } from 'express-validator';
+import { body, validationResult, ValidationChain } from 'express-validator';
+import { Request, Response, NextFunction } from 'express';
 
 const { passwordValidator } = require('../utils/passwordValidator');
 const { VALIDATION_LIMITS } = require('../config/constants');
+
+/**
+ * Validation result handler. Runs after a route's express-validator chains and
+ * short-circuits with a 400 when validation fails. This is the single seam for
+ * validation-error responses — controllers can assume input is already valid.
+ *
+ * Response shape is intentionally `{ errors: [...] }` (express-validator's
+ * `.array()`), matching the contract the client already consumes.
+ */
+const validate = (req: Request, res: Response, next: NextFunction): void => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    res.status(400).json({ errors: errors.array() });
+    return;
+  }
+  next();
+};
 
 /**
  * Registration request validators
@@ -257,6 +275,7 @@ const commentValidator: ValidationChain[] = [
 ];
 
 module.exports = {
+  validate,
   registerValidator,
   loginValidator,
   profileUpdateValidator,
@@ -266,6 +285,7 @@ module.exports = {
 };
 
 export {
+  validate,
   registerValidator,
   loginValidator,
   profileUpdateValidator,

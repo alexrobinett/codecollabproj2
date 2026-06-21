@@ -1,4 +1,3 @@
-const { validationResult } = require('express-validator');
 const User = require('../models/User');
 const Project = require('../models/Project');
 const Comment = require('../models/Comment');
@@ -255,11 +254,6 @@ const getUserDetails = async (req, res) => {
  */
 const updateUserRole = async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
     const { userId } = req.params;
     const { role, permissions, customPermissions } = req.body;
 
@@ -330,11 +324,6 @@ const updateUserRole = async (req, res) => {
  */
 const toggleUserSuspension = async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
     const { userId } = req.params;
     const { suspend, reason, duration } = req.body;
 

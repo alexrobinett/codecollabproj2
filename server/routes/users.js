@@ -15,7 +15,7 @@ const {
   deleteAvatar,
   getAvatar,
 } = require('../controllers/userController');
-const { profileUpdateValidator, messageValidator } = require('../middleware/validators');
+const { validate, profileUpdateValidator, messageValidator } = require('../middleware/validators');
 const auth = require('../middleware/auth');
 const { FILE_UPLOAD } = require('../config/constants');
 
@@ -69,7 +69,7 @@ router.get('/profile/me', auth, getMyProfile);
 // @route   PUT /api/users/profile
 // @desc    Update user profile
 // @access  Private
-router.put('/profile', auth, profileUpdateValidator, updateProfile);
+router.put('/profile', auth, profileUpdateValidator, validate, updateProfile);
 
 // @route   POST /api/users/avatar
 // @desc    Upload user avatar
@@ -89,7 +89,7 @@ router.get('/avatar/:fileId', getAvatar);
 // @route   POST /api/users/messages
 // @desc    Send a message to another user
 // @access  Private
-router.post('/messages', auth, messageValidator, sendMessage);
+router.post('/messages', auth, messageValidator, validate, sendMessage);
 
 // @route   GET /api/users/messages
 // @desc    Get user's messages (inbox/sent)

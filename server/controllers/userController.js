@@ -1,4 +1,3 @@
-const { validationResult } = require('express-validator');
 const User = require('../models/User');
 const Message = require('../models/Message');
 // GridFS removed - now using filesystem storage
@@ -38,11 +37,6 @@ const getUserById = async (req, res) => {
 // Update user profile
 const updateProfile = async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
     const {
       firstName,
       lastName,
@@ -138,11 +132,6 @@ const searchUsers = async (req, res) => {
 // Send a message to another user
 const sendMessage = async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
     const { recipientId, subject, content } = req.body;
     const senderId = req.user._id;
 
